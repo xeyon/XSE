@@ -1,0 +1,15 @@
+<plugin>
+   <extension
+         point="org.eclipse.rse.core.subsystemConfigurations">
+      <configuration
+            class="com.zhftc.xsm.subsystems.enterdb.EnterDBSubSystemConfiguration"
+            description="%SubsystemDescription"
+            icon="icons/full/obj16/dbm.gif"
+            iconlive="icons/full/obj16/dbmlive.gif"
+            id="com.zhftc.xsm.subsystems.enterdb"
+            name="%pluginName"
+            systemTypeIds="com.zhftc.xsm.systemtypes.simulator;org.eclipse.rse.systemtype.windows"
+            vendor="%providerName">
+      </configuration>
+   </extension>
+</plugin>
