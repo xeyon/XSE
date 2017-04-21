@@ -1,7 +1,4 @@
-package com.zhftc.xsm.subsystems.enterdb;
-
-import java.util.MissingResourceException;
-import java.util.ResourceBundle;
+package com.zhftc.xsm.internal.subsystems.enterdb;
 
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -12,9 +9,10 @@ import org.eclipse.rse.services.clientserver.messages.SystemMessageFile;
 import org.eclipse.rse.ui.SystemBasePlugin;
 import org.osgi.framework.BundleContext;
 
-import com.zhftc.xsm.subsystems.enterdb.model.ConfigResource;
-import com.zhftc.xsm.subsystems.enterdb.model.DatabaseResource;
-import com.zhftc.xsm.subsystems.enterdb.model.EnterDBAdapterFactory;
+import com.zhftc.xsm.internal.subsystems.enterdb.model.CommonResource;
+import com.zhftc.xsm.internal.subsystems.enterdb.model.ConfigResource;
+import com.zhftc.xsm.internal.subsystems.enterdb.model.DatabaseResource;
+import com.zhftc.xsm.internal.subsystems.enterdb.model.EnterDBAdapterFactory;
 
 /**
  * The activator class controls the plug-in life cycle
@@ -26,9 +24,6 @@ public class Activator extends SystemBasePlugin {
 
 	// The shared instance
 	private static Activator plugin;
-	
-	// ResourceBundle
-	private ResourceBundle resourceBundle = null;
 	
 	// Message file
 	private SystemMessageFile messageFile = null;
@@ -51,6 +46,7 @@ public class Activator extends SystemBasePlugin {
 		EnterDBAdapterFactory factory = new EnterDBAdapterFactory();
 		manager.registerAdapters(factory, ConfigResource.class);
 		manager.registerAdapters(factory, DatabaseResource.class);
+		manager.registerAdapters(factory, CommonResource.class);
 
 	}
 
@@ -74,26 +70,17 @@ public class Activator extends SystemBasePlugin {
 
 	@Override
 	protected void initializeImageRegistry() {
-		String path = getIconPath();
-		putImageInRegistry("ICON_ID_CONFIG", path + "systemfiles_obj.gif");
-		putImageInRegistry("ICON_ID_DATABASE", path + "systemfileslive_obj.gif");	
+		String path = getIconPath() + "\\full\\obj16\\";
+		putImageInRegistry("ICON_ID_CONF_DEF", path + "conf_default.gif");
+		putImageInRegistry("ICON_ID_CONF_INV", path + "conf_inval.gif");	
+		putImageInRegistry("ICON_ID_CONF_MOD", path + "conf_mod.gif");
+		putImageInRegistry("ICON_ID_CONF_RDY", path + "conf_read.gif");	
+		putImageInRegistry("ICON_ID_CONF_VLD", path + "conf_valid.gif");
+		putImageInRegistry("ICON_ID_DB_INV", path + "db_inval.gif");
+		putImageInRegistry("ICON_ID_DB_VLD", path + "db_valid.gif");
+		putImageInRegistry("ICON_ID_FOLDER", path + "systemfiles_obj.gif");	
 		putImageInRegistry("ICON_ID_CONFIGFILTER", path + "teamFilter.gif");
 		putImageInRegistry("ICON_ID_DATABASEFILTER", path + "developerFilter.gif");
-	}
-
-	/**
-	 * Retrieves the string resource bundle associated with this plugin.
-	 * @return the ResourceBundle or null if the bundle could not be loaded.
-	 */
-	public ResourceBundle getResourceBundle() {
-		try {
-			if (resourceBundle == null) {
-				resourceBundle = ResourceBundle.getBundle("EnterDBResources.properties");
-			}
-		} catch (MissingResourceException e) {
-			SystemBasePlugin.logError("Missing EnterDBResources.properties", e);
-		}
-		return resourceBundle;
 	}
 
 	/**
@@ -116,28 +103,6 @@ public class Activator extends SystemBasePlugin {
 	 */
 	public static IWorkspace getWorkspace() {
 		return ResourcesPlugin.getWorkspace();
-	}
-	
-	/**
-	 * Retrieve a string from the plugin's resource bundle.
-	 * @param key the key to the string
-	 * @return the retrieved string or the key if the string could not be
-	 * found or the bundle could not be loaded.
-	 */
-	public static String getResourceString(String key) {
-		String result = null;
-		ResourceBundle bundle = Activator.getDefault().getResourceBundle();
-		if (bundle != null) {
-			try {
-				result = bundle.getString(key);
-			} catch (MissingResourceException e) {
-				SystemBasePlugin.logError("Missing key in bundle", e);
-			}
-		}
-		if (result == null) {
-			result = key;
-		}
-		return result;
 	}
 	
 	/**

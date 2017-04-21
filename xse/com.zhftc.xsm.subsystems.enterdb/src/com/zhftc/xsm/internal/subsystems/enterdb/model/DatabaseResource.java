@@ -1,4 +1,4 @@
-package com.zhftc.xsm.subsystems.enterdb.model;
+package com.zhftc.xsm.internal.subsystems.enterdb.model;
 
 import org.eclipse.rse.core.subsystems.ISubSystem;
 

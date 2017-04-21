@@ -1,4 +1,4 @@
-package com.zhftc.xsm.subsystems.enterdb.model;
+package com.zhftc.xsm.internal.subsystems.enterdb.model;
 
 import java.util.Vector;
 
@@ -10,7 +10,7 @@ public class CommonResource extends AbstractResource {
 	protected String name;
 	protected String type;
 	protected CommonResource parent;
-	protected Vector<CommonResource> subItems = null;
+	protected Vector<CommonResource> subItems = new Vector<CommonResource>();
 
 	/**
 	 * Default constructor
@@ -64,8 +64,10 @@ public class CommonResource extends AbstractResource {
 	/**
 	 * @return the subItems
 	 */
-	public CommonResource[] getSubItems() {
-		return (CommonResource[]) subItems.toArray();
+	public CommonResource[] getChildren() {
+		CommonResource[] list = new CommonResource[subItems.size()];
+		subItems.toArray(list);
+		return list;
 	}
 
 	/**
@@ -82,8 +84,6 @@ public class CommonResource extends AbstractResource {
 	}
 	
 	public void addChild(CommonResource element) {
-		if (subItems == null)
-			subItems = new Vector<CommonResource>();
 		subItems.addElement(element);		
 	}
 	public CommonResource getParent() {
@@ -94,6 +94,16 @@ public class CommonResource extends AbstractResource {
 	 */
 	public void setParent(CommonResource parent) {
 		this.parent = parent;
+	}
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		if (parent != null)
+			return parent + "\\" + name;
+		else
+			return name;
 	}
 	
 

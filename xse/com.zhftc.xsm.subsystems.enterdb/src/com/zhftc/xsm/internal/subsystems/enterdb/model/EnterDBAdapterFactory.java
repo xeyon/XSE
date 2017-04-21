@@ -1,4 +1,4 @@
-package com.zhftc.xsm.subsystems.enterdb.model;
+package com.zhftc.xsm.internal.subsystems.enterdb.model;
 
 import org.eclipse.core.runtime.IAdapterFactory;
 import org.eclipse.rse.ui.view.AbstractSystemRemoteAdapterFactory;
@@ -8,8 +8,6 @@ import org.eclipse.ui.views.properties.IPropertySource;
 public class EnterDBAdapterFactory extends AbstractSystemRemoteAdapterFactory
 		implements IAdapterFactory {
 	
-	private ConfigResourceAdapter configAdapter = new ConfigResourceAdapter();
-	private DatabaseResourceAdapter databaseAdapter = new DatabaseResourceAdapter();
 	private CommonResourceAdapter commonAdapter = new CommonResourceAdapter();
 	
 	/**
@@ -26,11 +24,7 @@ public class EnterDBAdapterFactory extends AbstractSystemRemoteAdapterFactory
 	public Object getAdapter(Object adaptableObject, Class adapterType)
 	{
 		ISystemViewElementAdapter adapter = null;
-		if (adaptableObject instanceof ConfigResource)
-		  adapter = configAdapter;
-		else if (adaptableObject instanceof DatabaseResource)
-		  adapter = databaseAdapter;
-		else if (adaptableObject instanceof CommonResource)
+		if (adaptableObject instanceof CommonResource)
 			  adapter = commonAdapter;
 		
 		// these lines are very important! 

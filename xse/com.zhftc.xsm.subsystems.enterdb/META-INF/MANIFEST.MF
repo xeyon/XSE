@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: DBManager
 Bundle-SymbolicName: com.zhftc.xsm.subsystems.enterdb;singleton:=true
 Bundle-Version: 1.0.0.qualifier
-Bundle-Activator: com.zhftc.xsm.subsystems.enterdb.Activator
+Bundle-Activator: com.zhftc.xsm.internal.subsystems.enterdb.Activator
 Bundle-Vendor: xusy@zhftc.com
 Bundle-Localization: plugin
 Require-Bundle: org.eclipse.ui,
@@ -16,6 +16,7 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.rse.subsystems.files.core;bundle-version="3.3.1",
  org.eclipse.rse.subsystems.shells.core;bundle-version="3.1.300",
  org.eclipse.rse.core;bundle-version="[3.3.100,4.0.0)"
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
-Import-Package: org.eclipse.ui.views.properties
+Import-Package: org.eclipse.ui.console,
+ org.eclipse.ui.views.properties

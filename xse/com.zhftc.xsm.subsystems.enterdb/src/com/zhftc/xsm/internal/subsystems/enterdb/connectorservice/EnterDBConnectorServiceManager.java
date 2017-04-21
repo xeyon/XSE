@@ -9,7 +9,7 @@
  *                  com.zhftc.xsm.internal.subsystems.smb.connectorservice
  ********************************************************************************/
 
-package com.zhftc.xsm.subsystems.enterdb.connectorservice;
+package com.zhftc.xsm.internal.subsystems.enterdb.connectorservice;
 
 
 import org.eclipse.rse.core.model.IHost;
@@ -73,8 +73,7 @@ public class EnterDBConnectorServiceManager extends AbstractConnectorServiceMana
      */
     public IConnectorService createConnectorService(IHost host)
     {
-    	// TODO port set to 0, means no port number required.
-    	return new EnterDBConnectorService(host, 0);
+    	return new EnterDBConnectorService(host);
     }    
 
     /**

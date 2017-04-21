@@ -1,4 +1,4 @@
-package com.zhftc.xsm.subsystems.enterdb;
+package com.zhftc.xsm.internal.subsystems.enterdb;
 
 import org.eclipse.rse.services.clientserver.messages.SystemMessage;
 import org.eclipse.rse.ui.SystemWidgetHelpers;
@@ -44,16 +44,16 @@ public class EnterDBFilterStringEditPane extends SystemFilterStringEditPane {
 		textTeam = SystemWidgetHelpers.createLabeledTextField(
 			composite_prompts,
 			null,
-			Activator.getResourceString("filter.devr.teamprompt.label"), //$NON-NLS-1$
-			Activator.getResourceString("filter.devr.teamprompt.tooltip") //$NON-NLS-1$
+			"filter.devr.teamprompt.label", //$NON-NLS-1$
+			"filter.devr.teamprompt.tooltip" //$NON-NLS-1$
 		); 
 
 		// CREATE DEVELOPER PROMPT
 		textDevr = SystemWidgetHelpers.createLabeledTextField(
 			composite_prompts,
 			null,
-			Activator.getResourceString("filter.devr.devrprompt.label"), //$NON-NLS-1$
-			Activator.getResourceString("filter.devr.devrprompt.tooltip") //$NON-NLS-1$
+			"filter.devr.devrprompt.label", //$NON-NLS-1$
+			"filter.devr.devrprompt.tooltip" //$NON-NLS-1$
 		); 
 		
 		resetFields();

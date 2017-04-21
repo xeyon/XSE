@@ -1,4 +1,4 @@
-package com.zhftc.xsm.subsystems.enterdb.model;
+package com.zhftc.xsm.internal.subsystems.enterdb.model;
 
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -9,17 +9,19 @@ import org.eclipse.rse.ui.view.AbstractSystemViewAdapter;
 import org.eclipse.rse.ui.view.ISystemRemoteElementAdapter;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.views.properties.IPropertyDescriptor;
+import org.eclipse.ui.views.properties.PropertyDescriptor;
 
-import com.zhftc.xsm.subsystems.enterdb.Activator;
+import com.zhftc.xsm.internal.subsystems.enterdb.Activator;
+import com.zhftc.xsm.internal.subsystems.enterdb.EnterDBSubsystemResources;
 import com.zhftc.xsm.subsystems.enterdb.EnterDBSubSystem;
 
-public class ConfigResourceAdapter extends AbstractSystemViewAdapter implements
+public class CommonResourceAdapter extends AbstractSystemViewAdapter implements
 		ISystemRemoteElementAdapter {
 	
 	/**
 	 * Constructor.
 	 */
-	public ConfigResourceAdapter() {
+	public CommonResourceAdapter() {
 		super();
 	}
 
@@ -37,7 +39,25 @@ public class ConfigResourceAdapter extends AbstractSystemViewAdapter implements
 	 */
 	public ImageDescriptor getImageDescriptor(Object element)
 	{
-		return Activator.getDefault().getImageDescriptor("ICON_ID_CONFIG");
+		String type = this.getType(element);
+		switch (type) {
+		case "DB_VALID":
+			return Activator.getDefault().getImageDescriptor("ICON_ID_DB_VLD");
+		case "DB_INVALID":
+			return Activator.getDefault().getImageDescriptor("ICON_ID_DB_INV");
+		case "CONFIG_VALID":
+			return Activator.getDefault().getImageDescriptor("ICON_ID_CONF_VLD");
+		case "CONFIG_INVALID":
+			return Activator.getDefault().getImageDescriptor("ICON_ID_CONF_INV");
+		case "CONFIG_MOD":
+			return Activator.getDefault().getImageDescriptor("ICON_ID_CONF_MOD");
+		case "CONFIG_DEFAULT":
+			return Activator.getDefault().getImageDescriptor("ICON_ID_CONF_DEF");
+		case "CONFIG_READY":
+			return Activator.getDefault().getImageDescriptor("ICON_ID_CONF_RDY");
+		default:
+			return Activator.getDefault().getImageDescriptor("ICON_ID_FOLDER");
+		}
 	}
 
 	/* (non-Javadoc)
@@ -45,7 +65,7 @@ public class ConfigResourceAdapter extends AbstractSystemViewAdapter implements
 	 */
 	public String getText(Object element)
 	{
-		return ((ConfigResource)element).getName();
+		return ((CommonResource)element).getName();
 	}
 
 	/* (non-Javadoc)
@@ -53,8 +73,9 @@ public class ConfigResourceAdapter extends AbstractSystemViewAdapter implements
 	 */
 	public String getAbsoluteName(Object object)
 	{
-		ConfigResource team = (ConfigResource)object;
-		return "Config_"+team.getName();
+		CommonResource element = (CommonResource)object;
+		//return element.getId()+element.getName()+element.getType();
+		return element.getId();
 	}
 
 	/* (non-Javadoc)
@@ -62,7 +83,7 @@ public class ConfigResourceAdapter extends AbstractSystemViewAdapter implements
 	 */
 	public String getType(Object element)
 	{
-		return Activator.getResourceString("property.team_resource.type");
+		return ((CommonResource)element).getType();
 	}
 
 	/* (non-Javadoc)
@@ -70,32 +91,20 @@ public class ConfigResourceAdapter extends AbstractSystemViewAdapter implements
 	 */
 	public Object getParent(Object element)
 	{
-		return null; // not really used, which is good because it is ambiguous
+		EnterDBSubSystem endbSS = (EnterDBSubSystem)getSubSystem(element);
+		CommonResource res = (CommonResource)element;
+		endbSS.loggerPrintln(res+"getParent: "+res.getParent());
+		return res.getParent();
 	}
 	
-	/**
-	 * @see org.eclipse.rse.ui.view.AbstractSystemViewAdapter#internalGetPropertyDescriptors()
-	 */
-	protected IPropertyDescriptor[] internalGetPropertyDescriptors()
-	{
-		return null;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.eclipse.rse.ui.view.AbstractSystemViewAdapter#internalGetPropertyValue(java.lang.Object)
-	 */
-	protected Object internalGetPropertyValue(Object key)
-	{
-		return null;
-	}
-
 	/**
 	 * Intercept of parent method to indicate these objects can be renamed using the RSE-supplied
 	 *  rename action.
 	 */
 	public boolean canRename(Object element)
 	{
-		return true;
+		// TODO: rename resource required?
+		return false;
 	}
 	
 	// --------------------------------------
@@ -108,7 +117,7 @@ public class ConfigResourceAdapter extends AbstractSystemViewAdapter implements
 	@Override
 	public boolean doRename(Shell shell, Object element, String newName,
 			IProgressMonitor monitor) throws Exception {
-		((ConfigResource)element).setName(newName);
+		((CommonResource)element).setName(newName);
 		return true;
 	}
 
@@ -117,7 +126,7 @@ public class ConfigResourceAdapter extends AbstractSystemViewAdapter implements
 	 */
 	public String getAbsoluteParentName(Object element)
 	{
-		return "root"; // not really applicable as we have no unique hierarchy
+		return ((CommonResource)element).getParent().getId();
 	}
 
 	/* (non-Javadoc)
@@ -141,7 +150,7 @@ public class ConfigResourceAdapter extends AbstractSystemViewAdapter implements
 	 */
 	public String getRemoteType(Object element)
 	{
-		return "configuration"; // Fine grained. Unique to this resource type.
+		return "common"; // Fine grained. Unique to this resource type.
 	}
 
 	/* (non-Javadoc)
@@ -157,39 +166,66 @@ public class ConfigResourceAdapter extends AbstractSystemViewAdapter implements
 	 */
 	public boolean refreshRemoteObject(Object oldElement, Object newElement)
 	{
-		ConfigResource oldTeam = (ConfigResource)oldElement;
-		ConfigResource newTeam = (ConfigResource)newElement;
-		newTeam.setName(oldTeam.getName());
-		return false; // If developer objects held references to their team names, we'd have to return true
+		// TODO: more fields to be updated?
+		CommonResource oldE = (CommonResource)oldElement;
+		CommonResource newE = (CommonResource)newElement;
+		newE.setName(oldE.getName());
+		return true;
 	}
 
 	@Override
 	public Object getRemoteParent(Object arg0, IProgressMonitor arg1)
 			throws Exception {
-		// TODO Auto-generated method stub
-		return null;
+		EnterDBSubSystem endbSS = (EnterDBSubSystem)getSubSystem(arg0);
+		CommonResource res = (CommonResource)arg0;
+		endbSS.loggerPrintln(res+"getRemoteParent: "+res.getParent());
+		return res.getParent();
 	}
 
 	@Override
 	public String[] getRemoteParentNamesInUse(Object element, IProgressMonitor arg1)
 			throws Exception {
-		EnterDBSubSystem ourSS = (EnterDBSubSystem)getSubSystem(element);
-		CommonResource[] allTeams = ourSS.getAllDBTypes();
-		String[] allNames = new String[allTeams.length];
-		for (int idx = 0; idx < allTeams.length; idx++)
-		  allNames[idx] = allTeams[idx].getName();
+		CommonResource[] adjacents = ((CommonResource)element).getParent().getChildren();
+		String[] allNames = new String[adjacents.length];
+		for (int idx = 0; idx < adjacents.length; idx++)
+			  allNames[idx] = adjacents[idx].getName();
 		return allNames; // Return list of all team names 	
 	}
 
 	@Override
-	public Object[] getChildren(IAdaptable config, IProgressMonitor arg1) {
-		return ((ConfigResource)config).getSubItems();	
+	public Object[] getChildren(IAdaptable element, IProgressMonitor arg1) {
+		return ((CommonResource)element).getChildren();	
 	}
 
 	@Override
 	public boolean hasChildren(IAdaptable arg0) {
-		// TODO Auto-generated method stub
-		return true;
+		return ((CommonResource)arg0).getChildren().length > 0;
+	}
+	/**
+	 * @see org.eclipse.rse.ui.view.AbstractSystemViewAdapter#internalGetPropertyDescriptors()
+	 */
+	protected IPropertyDescriptor[] internalGetPropertyDescriptors()
+	{
+		// the following array should be made static to it isn't created every time		
+		PropertyDescriptor[] ourPDs = new PropertyDescriptor[2];
+		ourPDs[0] = new PropertyDescriptor("id", EnterDBSubsystemResources.PROPERTY_ID_NAME);
+		ourPDs[0].setDescription(EnterDBSubsystemResources.PROPERTY_ID_DESC);
+		ourPDs[1] = new PropertyDescriptor("parent", EnterDBSubsystemResources.PROPERTY_PARENT_NAME);
+		ourPDs[1].setDescription(EnterDBSubsystemResources.PROPERTY_PARENT_DESC);
+		return ourPDs;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.rse.ui.view.AbstractSystemViewAdapter#internalGetPropertyValue(java.lang.Object)
+	 */
+	protected Object internalGetPropertyValue(Object key)
+	{
+		// propertySourceInput holds the currently selected object
+		CommonResource devr = (CommonResource)propertySourceInput;
+		if (key.equals("id"))
+			return devr.getId();
+		else if (key.equals("parent"))
+		  return devr.getParent().getName();
+		return null;
+	}
 }

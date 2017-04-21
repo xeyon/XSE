@@ -9,7 +9,7 @@
  *                  the RSE developer tutorial.
  ********************************************************************************/
 
-package com.zhftc.xsm.subsystems.enterdb.connectorservice;
+package com.zhftc.xsm.internal.subsystems.enterdb.connectorservice;
 
 public interface IEnterDBSubSystem {
 
