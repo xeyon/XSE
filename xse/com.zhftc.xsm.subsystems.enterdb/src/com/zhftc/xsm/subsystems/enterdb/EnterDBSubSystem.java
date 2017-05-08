@@ -6,6 +6,7 @@
  * 
  * Initial Contributors:
  * xusy@zhftc.com, Apr-18,2017 - Initial creation of EnterDB subsystem
+ * xusy@zhftc.com, May-4, 2017 - resolve filter string by element's ID
  ********************************************************************************/
 package com.zhftc.xsm.subsystems.enterdb;
 import java.io.BufferedReader;
@@ -13,6 +14,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Vector;
 
@@ -31,8 +34,9 @@ import com.zhftc.xsm.internal.subsystems.enterdb.model.CommonResource;
  */
 public class EnterDBSubSystem extends SubSystem
 {
-	private CommonResource dbRoot;       // root element of db types
-	private CommonResource folderRoot;   // root of folder(configurations)
+	//private CommonResource dbRoot;       // root element of db types
+	//private CommonResource folderRoot;   // root of folder(configurations)
+	private Hashtable<String, CommonResource> dbMap = new Hashtable<String, CommonResource>();
 	private OutputStream _loggingStream;
 
 	private String dataFile = "D:\\DBManager\\Work\\datafile.txt";	// "datafile.txt"
@@ -73,30 +77,12 @@ public class EnterDBSubSystem extends SubSystem
 	public Object getObjectWithAbsoluteName(String key)
 	{
 		loggerPrintln("__enter getObjectWithAbsoluteName: "+key);
-		//TODO: return the CommonResource from HashMap
-		//  Functional opposite of getAbsoluteName(Object) in our resource adapters
-		if (key.startsWith("Team_")) //$NON-NLS-1$
-		{
-			String teamName = key.substring(5);
-			CommonResource[] allTeams = getAllDBTypes();
-			for (int idx=0; idx < allTeams.length; idx++)
-			   if (allTeams[idx].getName().equals(teamName))
-			     return allTeams[idx];
-		}
-		else if (key.startsWith("Devr_")) //$NON-NLS-1$
-		{
-			String devrId = key.substring(5);
-/*			DatabaseResource[] devrs = getAllDatabases();
-			for (int idx=0; idx < devrs.length; idx++)
-			  if (devrs[idx].getId().equals(devrId))
-			    return devrs[idx];            	
-*/		}
-		return null; 
+		return dbMap.get(key);
 	}
 	/**
 	 * When a filter is expanded, this is called for each filter string in the filter.
 	 * Using the criteria of the filter string, it must return objects representing remote resources.
-	 * For us, this will be an array of TeamResource objects.
+	 * For us, this will be an array of CommonResource objects filtered by ID.
 	 * 
 	 * @param monitor - the progress monitor in effect while this operation performs
 	 * @param filterString - one of the filter strings from the expanded filter.
@@ -106,22 +92,29 @@ public class EnterDBSubSystem extends SubSystem
                 java.lang.InterruptedException                
 	{
 			loggerPrintln(".internalResolveFilterString: "+filterString);
-			// Fake it out for now and return dummy list. 
-			// In reality, this would communicate with remote server-side code/data.
-			CommonResource[] allTeams = getAllDBTypes();
 			
-			// Now, subset master list, based on filter string...
-			NamePatternMatcher subsetter = new NamePatternMatcher(filterString);
-			Vector<CommonResource> v = new Vector<CommonResource>();
-			for (int idx = 0; idx < allTeams.length; idx++)
-			{
-				if (subsetter.matches(allTeams[idx].getName()))
-				  v.addElement(allTeams[idx]);
-			}		
-			CommonResource[] teams = new CommonResource[v.size()];
-			for (int idx=0; idx < v.size(); idx++)
-			   teams[idx] = (CommonResource)v.elementAt(idx);
-			return teams;
+			if (filterString.equals("*")) {
+				CommonResource[] roots = new CommonResource[2];
+				roots[0] = dbMap.get("-1");
+				roots[1] = dbMap.get("200000");
+				return roots;
+			}
+			else {
+				// Now, subset master list, based on filter string...
+				NamePatternMatcher subsetter = new NamePatternMatcher(
+						filterString);
+				Vector<CommonResource> v = new Vector<CommonResource>();
+				for (Iterator<String> itr = dbMap.keySet().iterator(); itr
+						.hasNext();) {
+					String key = (String) itr.next();
+					if (subsetter.matches(key))
+						v.addElement(dbMap.get(key));
+				}
+				CommonResource[] filteredRes = new CommonResource[v.size()];
+				for (int idx = 0; idx < v.size(); idx++)
+					filteredRes[idx] = (CommonResource) v.elementAt(idx);
+				return filteredRes;
+			}
 	}
 
 	/**
@@ -150,28 +143,6 @@ public class EnterDBSubSystem extends SubSystem
 	// Our own methods...
 	// ------------------
 
-	/**
-	 * Get all the DBTypes from DBLIST. 
-	 */
-	public CommonResource[] getAllDBTypes()
-	{
-		if (dbRoot == null) {
-			parseDatafile(dataFile);
-		}
-		return dbRoot.getChildren();
-	}
-
-	/**
-	 * Get all the folders from FOLDERLIST. 
-	 */
-	public CommonResource[] getAllFolders()
-	{
-		if (folderRoot == null) {
-		    parseDatafile(dataFile);
-		}
-		return folderRoot.getChildren();
-	}
-
 	public void loggerPrintln(String str) {
 		if(_loggingStream != null) {
 			try {
@@ -186,6 +157,7 @@ public class EnterDBSubSystem extends SubSystem
 		int idx = 0;
 		String line;
 		String[] field;
+		CommonResource element;
 		LinkedList<CommonResource> tempRes = new LinkedList<CommonResource>();
 		File dataFile = new File(fileName);
 		
@@ -212,8 +184,17 @@ public class EnterDBSubSystem extends SubSystem
 						else {
 							field = line.split(",");
 							idx = Integer.parseInt(field[0]);
-							if (idx > 0) {
-								CommonResource element = new CommonResource(field[1],field[2],field[3]);
+							element = new CommonResource(field[1],field[2],field[3]);
+							element.setSubSystem(this);
+							tempRes.add(idx, element);
+							dbMap.put(field[2], element);
+						
+							if (idx > 0) { // This is not the root element.
+								element.setParent(tempRes.get(idx-1));
+								tempRes.get(idx-1).addChild(element);
+							}
+							/*if (idx > 0) {
+								element = new CommonResource(field[1],field[2],field[3]);
 								element.setParent(tempRes.get(idx-1));
 								element.setSubSystem(this);
 								tempRes.get(idx-1).addChild(element);
@@ -224,14 +205,26 @@ public class EnterDBSubSystem extends SubSystem
 								dbRoot = new CommonResource(field[1],field[2],field[3]);
 								dbRoot.setSubSystem(this);
 								tempRes.add(0, dbRoot);
-							}
+							}*/
 						}
 						break;
 					case 2:
 						field = line.split(",");
 						idx = Integer.parseInt(field[0]);
+						element = new CommonResource(field[1],field[2],field[3]);
+						element.setSubSystem(this);
+						tempRes.add(idx, element);
+						dbMap.put(field[2], element);
+					
+						if (idx > 0) { // This is not the root element.
+							element.setParent(tempRes.get(idx-1));
+							tempRes.get(idx-1).addChild(element);
+						}
+
+/*						field = line.split(",");
+						idx = Integer.parseInt(field[0]);
 						if (idx > 0) {
-							CommonResource element = new CommonResource(field[1],field[2],field[3]);
+							element = new CommonResource(field[1],field[2],field[3]);
 							element.setParent(tempRes.get(idx-1));
 							element.setSubSystem(this);
 							tempRes.get(idx-1).addChild(element);
@@ -242,7 +235,7 @@ public class EnterDBSubSystem extends SubSystem
 							folderRoot = new CommonResource(field[1],field[2],field[3]);
 							folderRoot.setSubSystem(this);
 							tempRes.add(0, folderRoot);
-						}
+						}*/
 						break;
 					}
 				}
@@ -258,14 +251,7 @@ public class EnterDBSubSystem extends SubSystem
 	            }
 	        }
 		}
-		loggerPrintln("..dbRoot sublist:");
-		for(CommonResource res : dbRoot.getChildren()) {
-			loggerPrintln("..." + res);
-		}
-		loggerPrintln("..folderRoot sublist:");
-		for(CommonResource res : folderRoot.getChildren()) {
-			loggerPrintln("..." + res);
-		}
+
 	}
 
 	/**

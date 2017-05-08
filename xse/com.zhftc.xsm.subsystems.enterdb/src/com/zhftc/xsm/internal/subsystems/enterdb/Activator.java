@@ -44,8 +44,6 @@ public class Activator extends SystemBasePlugin {
 		plugin = this;
 		IAdapterManager manager = Platform.getAdapterManager();
 		EnterDBAdapterFactory factory = new EnterDBAdapterFactory();
-		manager.registerAdapters(factory, ConfigResource.class);
-		manager.registerAdapters(factory, DatabaseResource.class);
 		manager.registerAdapters(factory, CommonResource.class);
 
 	}

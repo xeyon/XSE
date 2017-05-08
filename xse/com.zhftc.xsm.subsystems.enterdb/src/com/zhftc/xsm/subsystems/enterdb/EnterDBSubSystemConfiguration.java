@@ -19,8 +19,7 @@ import org.eclipse.rse.core.filters.ISystemFilterPool;
 import org.eclipse.rse.core.filters.ISystemFilterPoolManager;
 import org.eclipse.rse.core.filters.ISystemFilter;
 import org.eclipse.rse.core.model.IHost;
-
-import com.zhftc.xsm.internal.subsystems.enterdb.Activator;
+import com.zhftc.xsm.internal.subsystems.enterdb.EnterDBSubsystemResources;
 import com.zhftc.xsm.internal.subsystems.enterdb.connectorservice.EnterDBConnectorServiceManager;
 import com.zhftc.xsm.internal.subsystems.enterdb.connectorservice.IEnterDBSubSystem;
 
@@ -52,22 +51,17 @@ public class EnterDBSubSystemConfiguration extends SubSystemConfiguration {
 			.getConnectorService(host, IEnterDBSubSystem.class);
 	}
 	
-	/**
-	 * Intercept of parent method that creates an initial default filter pool.
-	 * We intercept so that we can create an initial filter in that pool, which will
-	 *  list all teams.
-	 */
 	protected ISystemFilterPool createDefaultFilterPool(ISystemFilterPoolManager mgr)
 	{
 		ISystemFilterPool defaultPool = null;
 		try {
 			defaultPool = mgr.createSystemFilterPool(getDefaultFilterPoolName(
 					mgr.getName(), getId()), false); // true=>is deletable by user
-			Vector strings = new Vector();
+			Vector<String> strings = new Vector<String>();
 			strings.add("*");
 			ISystemFilter filter = mgr.createSystemFilter(defaultPool, 
-					"filter.default.name", strings);
-			//filter.setType("Configuration");
+					EnterDBSubsystemResources.FILTER_DEFAULT_NAME, strings);
+			filter.setType("CONF");
 		} catch (Exception exc) {}
 		return defaultPool;
 	}
@@ -78,16 +72,16 @@ public class EnterDBSubSystemConfiguration extends SubSystemConfiguration {
 	 *
 	 * Requires this line in EnterDBResources.properties: property.type.teamfilter=Team filter
 	 */
-/*	public String getTranslatedFilterTypeProperty(ISystemFilter selectedFilter)
+	public String getTranslatedFilterTypeProperty(ISystemFilter selectedFilter)
 	{
 	   	String type = selectedFilter.getType();
 	   	if (type == null)
-	   	  type = "Configuration";
-	   	if (type.equals("team"))
-	   	  return Activator.getResourceString("property.type.teamfilter");
+	   	  type = "CONF";
+	   	if (type.equals("CONF"))
+	   	  return EnterDBSubsystemResources.FILTER_TYPE_CONF;
 	   	else
-	   	  return Activator.getResourceString("property.type.devrfilter");
-	}*/
+	   	  return EnterDBSubsystemResources.FILTER_TYPE_DB;
+	}
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.rse.core.subsystems.SubSystemConfiguration#supportsUserId()

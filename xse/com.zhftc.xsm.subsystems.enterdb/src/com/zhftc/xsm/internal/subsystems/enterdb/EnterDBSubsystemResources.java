@@ -13,10 +13,15 @@ public class EnterDBSubsystemResources extends NLS {
 	public static String	RESID_DBM_CONNECTORSERVICE_NAME;
 	public static String	RESID_DBM_CONNECTORSERVICE_DESCRIPTION;
 	public static String	RESID_DBM_SETTINGS_LABEL;
+	public static String	RESID_FILTER_DBROOT;
+	public static String	RESID_FILTER_CONFROOT;
 	
 	public static String	PROPERTY_ID_NAME;
 	public static String	PROPERTY_ID_DESC;
 	public static String	PROPERTY_PARENT_NAME;
 	public static String	PROPERTY_PARENT_DESC;
 	
+	public static String	FILTER_DEFAULT_NAME;
+	public static String	FILTER_TYPE_DB;
+	public static String	FILTER_TYPE_CONF;
 }
